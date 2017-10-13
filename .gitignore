@@ -1,3 +1,5 @@
 # gitignore on  data #
 ###################
 data/latimes/
+data/save/
+data/util/
