@@ -34,7 +34,7 @@ def computeMeanSizeFilesInRepo(folder):
 # loop on nbCuts and build the processing list for different document size.
 # return a dict of form {nbcut : (meanSize, time elapsed)}
 ##
-def computeDictRelationWithSizeTime(nbCuts, writingPath, docFile):
+def computeDictRelationWithSizeTime(nbCuts, writingPath, writingPathUtil, docFile,):
     result = {}
     for nbCut in nbCuts:
     
@@ -46,7 +46,7 @@ def computeDictRelationWithSizeTime(nbCuts, writingPath, docFile):
         
         # build partial index file
         util_index.buildIndexFile(vocList, docLenght, writingPath, nbCut)
-        util_index.writingDictInFile(docLenght, writingPath, docFile, " ")
+        util_index.writingDictInFile(docLenght, writingPathUtil, docFile, " ")
 
         # We compute the mean size of document needed for the posting list.
         meanSizebytes =  computeMeanSizeFilesInRepo(writingPath)
