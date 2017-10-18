@@ -18,7 +18,6 @@ import re
 # constant
 
 # Represent the constraint of memory
-NB_DOCUMENT = 1000
 DATA_PATH = "../data/latimes/"
 NAME_POSTING_LIST = "postingList_"
 SEPARATOR = " "
@@ -147,7 +146,7 @@ def writingDictInFile(currentDict, path, name, separator):
 ##
 # The function build the index file composed by the voc and the associated posting list.
 ##
-def buildIndexFile(vocList, docLenght, WRITING_PATH_POSTING_LIST = "../data/saveFile/") :
+def buildIndexFile(vocList, docLenght, writingPath , nbDocument) :
     print("Building index File")
     
     # We get the list of file containing the articles.
@@ -183,11 +182,13 @@ def buildIndexFile(vocList, docLenght, WRITING_PATH_POSTING_LIST = "../data/save
                             stemWords = handleFormatText(paragraph.string,vocList, docLenght, docID)
                             buildPostingList(stemWords, currentPostingList, int(docID))
                              
-                if docIDCounter % NB_DOCUMENT == 0 :
+                if docIDCounter % nbDocument == 0 :
                     counter = counter + 1
-                    writingInFile(currentPostingList, counter, WRITING_PATH_POSTING_LIST, NAME_POSTING_LIST, SEPARATOR)
+                    writingInFile(currentPostingList, counter, writingPath, NAME_POSTING_LIST, SEPARATOR)
                     # clear the ram memory.
                     currentPostingList.clear()
-             
+                   
         curArticle.closed
         progress_bar.value += 1
+       
+    writingInFile(currentPostingList, counter + 1, writingPath, NAME_POSTING_LIST, SEPARATOR)

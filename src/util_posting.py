@@ -4,6 +4,8 @@ import os
 import math
 import operator
 import collections
+import math
+import operator
 # --------------------------------------------------------------------------------
 # Constant
 SAVE_FILE  = 'saveFile'
@@ -110,6 +112,23 @@ def sort_and_cast_doc_in_posting_list(word_posting_list, itemgetterparam=1):
     otemp = sorted(word_posting_list.items(), key=operator.itemgetter(itemgetterparam))
     return dict(otemp)
 
+
+def current_word_PL(current_word, file_reader_last_read_list, doc_dict, nb_doc):
+    word_posting_list = {} # { key = doc , value = score }
+    for idx, file_reader_last_read in enumerate(file_reader_last_read_list):
+        if file_reader_last_read["last_read"]["word"] == current_word:
+            docs = file_reader_last_read["last_read"]["doc_score_list"]
+            add_doc_in_posting_list(word_posting_list=word_posting_list, docs=docs)
+            file_reader_last_read_list[idx]=read_line_and_update(file_reader_and_last_read=file_reader_last_read)
+            for key, value in word_posting_list.items():
+                tf = float(value) / doc_dict[int(key)]
+                idf = math.log((float(nb_doc)/len(word_posting_list)),2)
+                score  = tf*idf
+                word_posting_list[key]=score       
+            word_posting_list = sort_and_cast_doc_in_posting_list(word_posting_list=word_posting_list)
+    return word_posting_list
+    
+
 def get_doc_dict(filename):
     doc_dict = {}
     file_reader = open(filename, "r")
@@ -178,7 +197,6 @@ def createPostingList():
         close_file_readers(file_reader_last_read_list=file_reader_last_read_list)
 
 
-
 def creat_posting_list_obj(posting_list_line):
     if  posting_list_line == "":
         return []
@@ -187,7 +205,6 @@ def creat_posting_list_obj(posting_list_line):
     tail = posting_list_line[1:]
     ordered_list = []
     access_dict = {}
-    print(tail)
     
     for i in range(0,len(tail)-1,2):
         item = tail[i]
@@ -207,8 +224,6 @@ def creat_posting_list_obj_list(query, filename='all_posting_list.txt'):
     
     while posting_list_line != []:
         if  posting_list_line[0] in word_list:
-            print(posting_list_line[0])
-            print(posting_list_line)
             posting_list_obj = creat_posting_list_obj(posting_list_line=posting_list_line)
             posting_list_obj_list.append(posting_list_obj)
         
