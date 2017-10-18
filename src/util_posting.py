@@ -1,6 +1,8 @@
 # --------------------------------------------------------------------------------
 # Import
 import os 
+import math
+import operator
 import collections
 # --------------------------------------------------------------------------------
 # Constant
@@ -101,32 +103,13 @@ def add_doc_in_posting_list(word_posting_list, docs):
         else:
             word_posting_list[doc_score["doc"]] = doc_score["score"]
 
-def sort_and_cast_doc_in_posting_list(word_posting_list):
+def sort_and_cast_doc_in_posting_list(word_posting_list, itemgetterparam=1):
     temp = {}
     for key, val in word_posting_list.items():
         temp[int(key)] = float(val)
-    otemp = sorted(word_posting_list.items(), key=operator.itemgetter(1))
+    otemp = sorted(word_posting_list.items(), key=operator.itemgetter(itemgetterparam))
     return dict(otemp)
 
-
-
-def current_word_PL(current_word, file_reader_last_read_list, doc_dict, nb_doc):
-    word_posting_list = {} # { key = doc , value = score }
-    for idx, file_reader_last_read in enumerate(file_reader_last_read_list):
-        if file_reader_last_read["last_read"]["word"] == current_word:
-            docs = file_reader_last_read["last_read"]["doc_score_list"]
-            add_doc_in_posting_list(word_posting_list=word_posting_list, docs=docs)
-            file_reader_last_read_list[idx]=read_line_and_update(file_reader_and_last_read=file_reader_last_read)
-            for key, value in word_posting_list.items():
-                tf = float(value) / doc_dict[int(key)]
-                idf = math.log((float(nb_doc)/len(word_posting_list)),2)
-                if nb_doc < len(word_posting_list):
-                    print("GOD DAMN IT ")
-                score  = tf*idf
-                word_posting_list[key]=score       
-            word_posting_list = sort_and_cast_doc_in_posting_list(word_posting_list=word_posting_list)
-    return word_posting_list
-    
 def get_doc_dict(filename):
     doc_dict = {}
     file_reader = open(filename, "r")
@@ -139,36 +122,62 @@ def get_doc_dict(filename):
     file_reader.close()
     return doc_dict
 
+def current_word_PL(current_word, file_reader_last_read_list, doc_dict, nb_doc):
+    word_posting_list = {} # { key = doc , value = score }
+    for idx, file_reader_last_read in enumerate(file_reader_last_read_list):
+        if file_reader_last_read["last_read"]["word"] == current_word:
+            docs = file_reader_last_read["last_read"]["doc_score_list"]
+            add_doc_in_posting_list(word_posting_list=word_posting_list, docs=docs)
+            file_reader_last_read_list[idx]=read_line_and_update(file_reader_and_last_read=file_reader_last_read)
+    for key, value in word_posting_list.items():
+        tf = float(value) / doc_dict[int(key)]
+        idf = math.log((float(nb_doc)/len(word_posting_list)),10)
+        score  = (tf*idf)
+        word_posting_list[key]=score 
+    word_posting_list = sort_and_cast_doc_in_posting_list(word_posting_list=word_posting_list)
+    return word_posting_list
+    
+
+
 def createPostingList():
-    ##### peut etre à mettre dans une fonction
-    file_reader_last_read_list = initialize_file_readers()
-    for idx, file_reader_and_last_read in enumerate(file_reader_last_read_list):
-        file_reader_last_read_list[idx]=read_line_and_update(file_reader_and_last_read=file_reader_and_last_read)
-    current_word = min_top_word(file_reader_last_read_list=file_reader_last_read_list)
-    final_file = open("all_posting_list.txt", "w")
-    ######
-
-    doc_dict = get_doc_dict("../data/util/docList")
-    nb_doc = len(doc_dict)
-
-    ### autre function
-    i = 0 
-    while current_word != "|||":    
-        current_PL = current_word_PL(current_word=current_word, file_reader_last_read_list=file_reader_last_read_list,\
-         doc_dict=doc_dict, nb_doc=nb_doc ) 
-        curent_string = ""
-        for key, value in current_PL.items():
-            curent_string = " " + str(key) + " " + str(value) + curent_string
-        curent_string = current_word + curent_string
-        final_file.write(curent_string + "\n")
+    try :
+        ##### peut etre à mettre dans une fonction
+        file_reader_last_read_list = initialize_file_readers()
+        for idx, file_reader_and_last_read in enumerate(file_reader_last_read_list):
+            file_reader_last_read_list[idx]=read_line_and_update(file_reader_and_last_read=file_reader_and_last_read)
         current_word = min_top_word(file_reader_last_read_list=file_reader_last_read_list)
-        if i %1000 == 0:
-            print(i/1000)
-        i +=1
-    ####
+        final_file = open("all_posting_list.txt", "w")
+        ######
 
-    final_file.close()
-    close_file_readers(file_reader_last_read_list=file_reader_last_read_list)
+        doc_dict = get_doc_dict("../data/util/docList")
+        print(doc_dict)
+        nb_doc = len(doc_dict)
+
+        ### autre function
+        i = 0 
+        while current_word != "|||":    
+            current_PL = current_word_PL(current_word=current_word, file_reader_last_read_list=file_reader_last_read_list,\
+             doc_dict=doc_dict, nb_doc=nb_doc ) 
+            curent_string = ""
+            for key, value in current_PL.items():
+                curent_string = curent_string + " " + str(key) + " " + str(value)
+            curent_string = current_word + curent_string
+            final_file.write(curent_string + "\n")
+            current_word = min_top_word(file_reader_last_read_list=file_reader_last_read_list)
+            if i %1000 == 0:
+                print(i/1000)
+            i +=1
+        ####
+        
+        final_file.close()
+        close_file_readers(file_reader_last_read_list=file_reader_last_read_list)
+    
+    except Exception as ex:
+        print(ex)
+        final_file.close()
+        close_file_readers(file_reader_last_read_list=file_reader_last_read_list)
+
+
 
 def creat_posting_list_obj(posting_list_line):
     if  posting_list_line == "":
