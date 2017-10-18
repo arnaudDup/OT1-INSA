@@ -202,7 +202,9 @@ class PostingListEncoder(object):
             score = val
             ordered_list.append((float(score),int(doc_id)))
             access_dict[int(doc_id)] = float(score)
-            
+            ######## here
+        ordered_list.reverse()
+        ########
         return PostingList(qt,ordered_list,access_dict)
 
     def creat_posting_list_obj_list(self,query):
@@ -271,13 +273,22 @@ def createPostingListEncoded(block_size=1000):
         close_file_readers(file_reader_last_read_list=file_reader_last_read_list)
         raise ex
         
-        
+def saveEncoderInPickle(obj, filename):
+    with open(filename, 'wb') as file:
+        my_pickler = pickle.Pickler(file)
+        my_pickler.dump(obj)
+    
+def unPickleEncoder(filename):
+    with open(filename, 'rb') as file:
+        my_unpickler = pickle.Unpickler(file)
+        return my_unpickler.load()
 
 
-#PLset = createPostingListEncoded()
-#print(PLset.creat_posting_list_obj_list("100th")[0].ordered_list)
+# PLset = createPostingListEncoded()
+# print(PLset.creat_posting_list_obj_list("100th").__len__())
 
 ## decroissant fonction du score 
-## store mon objet dans un pickle 
+## regarder avec arnaud pour la fonction
+
 
 

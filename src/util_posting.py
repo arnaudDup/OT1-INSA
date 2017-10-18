@@ -109,7 +109,7 @@ def sort_and_cast_doc_in_posting_list(word_posting_list, itemgetterparam=1):
     temp = {}
     for key, val in word_posting_list.items():
         temp[int(key)] = float(val)
-    otemp = sorted(word_posting_list.items(), key=operator.itemgetter(itemgetterparam))
+    otemp = sorted(temp.items(), key=operator.itemgetter(itemgetterparam))
     return dict(otemp)
 
 
@@ -169,7 +169,6 @@ def createPostingList():
         ######
 
         doc_dict = get_doc_dict("../data/util/docList")
-        print(doc_dict)
         nb_doc = len(doc_dict)
 
         ### autre function
@@ -179,7 +178,7 @@ def createPostingList():
              doc_dict=doc_dict, nb_doc=nb_doc ) 
             curent_string = ""
             for key, value in current_PL.items():
-                curent_string = curent_string + " " + str(key) + " " + str(value)
+                curent_string = " " + str(key) + " " + str(value) + curent_string
             curent_string = current_word + curent_string
             final_file.write(curent_string + "\n")
             current_word = min_top_word(file_reader_last_read_list=file_reader_last_read_list)
@@ -207,8 +206,7 @@ def creat_posting_list_obj(posting_list_line):
     access_dict = {}
     
     for i in range(0,len(tail)-1,2):
-        item = tail[i]
-        doc_id = item
+        doc_id = tail[i]
         score = tail[i+1]
         ordered_list.append((float(score),int(doc_id)))
         access_dict[int(doc_id)] = float(score)
@@ -232,4 +230,6 @@ def creat_posting_list_obj_list(query, filename='all_posting_list.txt'):
         posting_list_line = line.split()
     file_reader.close()
     return posting_list_obj_list
+
+# createPostingList()
         
