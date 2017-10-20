@@ -3,3 +3,5 @@
 data/latimes/
 data/la*
 src/django/banana/banana/articles/
+data/save/
+data/util/
