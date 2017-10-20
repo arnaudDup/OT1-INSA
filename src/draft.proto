@@ -1,0 +1,9 @@
+message PostingListItem{
+required int32 docId = 1;
+required double score = 2;
+}
+
+message PostingList{
+optional string term = 1
+optional repeated PostingListItem items = 2;
+}
