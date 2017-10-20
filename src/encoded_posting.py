@@ -7,9 +7,16 @@ import operator
 import collections
 from bitarray import bitarray
 import pickle
+
 from util_posting import *
+from fagin import top_k_thresh
+# ------------------------------------------------------------------
+# Constants 
+
+ENCODE_PL_PICKLE_FILE = "../data/encode_pl_pickle_file"
 
 # ------------------------------------------------------------------
+
 
 class PostingListEncoder(object):
     """    
@@ -18,14 +25,25 @@ class PostingListEncoder(object):
         dict_word_bgnPL_endPL is a dictionary assotiating word (string) to (first_bit_PL, last_bit_PL+1) (int,int)
     """
     def __init__(self, list_fst_lst_doc=[], dict_word_bgnPL_endPL={}, pl_file="../data/binPL/PL"):
-            self.list_fst_lst_doc=list_fst_lst_doc
-            self.dict_word_bgnPL_endPL=dict_word_bgnPL_endPL
-            self.pl_file=pl_file
+        """
+
+        :param list_fst_lst_doc:
+        :param dict_word_bgnPL_endPL:
+        :param pl_file:
+        """
+        self.list_fst_lst_doc=list_fst_lst_doc
+        self.dict_word_bgnPL_endPL=dict_word_bgnPL_endPL
+        self.pl_file=pl_file
 
     number_of_PL = 0
 
     
     def encode7bit(cls, value):
+        """
+        This function encode the integer <value> on the minimum octet necesary
+        :param value: the int that will be encoded
+        :return: bit array in forme of string that represent the value
+        """
         temp =  value
         res = ''
         count = 0
@@ -49,6 +67,11 @@ class PostingListEncoder(object):
 
 
     def decode7bit_one_oct(cls,my_str):
+        """
+        decode one array of 7 bit
+        :param my_str: the 7 bits represented in a string
+        :return: the intger represented by the string
+        """
         temp = my_str
         order = 1
         res = 0
@@ -61,6 +84,11 @@ class PostingListEncoder(object):
     decode7bit_one_oct = classmethod(decode7bit_one_oct)
 
     def decode7bit_one_int(cls,my_str):
+        """
+        decode an array of bit of several octet that represent a unique integer
+        :param my_str: the bits represented in a string
+        :return: the intger represented by the bit array
+        """
         temp = list(my_str)
         order = 1
         res = 0
@@ -74,6 +102,11 @@ class PostingListEncoder(object):
     decode7bit_one_int = classmethod(decode7bit_one_int)
 
     def decode7bit_list_int(cls,mystr):
+        """
+        decode an array of bit of several octet that represent serveral integer
+        :param mystr: the bits represented in a string
+        :return: the intger represented by the bit array
+        """
         temp = mystr
         res = []
         next_str = "" 
@@ -93,6 +126,11 @@ class PostingListEncoder(object):
 
 
     def encode7bit_list_int(cls,l):
+        """
+        encode a list of int
+        :param l: the list of int that we want to encode
+        :return: string that represent the list of int encoded
+        """
         res = ""
         for i in l:
             res += PostingListEncoder.encode7bit(i)
@@ -100,10 +138,20 @@ class PostingListEncoder(object):
     encode7bit_list_int = classmethod(encode7bit_list_int)
 
     def bitarray_to_string(cls,ba):
+        """
+        represent the bit array
+        :param ba: bit array
+        :return: the string that contain each bit
+        """
         return ba.__repr__()[10:len(ba.__repr__())-2]
     bitarray_to_string = classmethod(bitarray_to_string)
 
     def encode_posting_list(cls,dict_doc_score):
+        """
+        encode a posting list
+        :param dict_doc_score: dict that have a doc id as key and a score as value
+        :return: the bitarray object that represent the posting list
+        """
         list_of_int = []
         for key, val in dict_doc_score.items():
             list_of_int.append(int(key))
@@ -122,6 +170,11 @@ class PostingListEncoder(object):
     encode_posting_list = classmethod(encode_posting_list)
 
     def decode_posting_list(cls,bit_array):
+        """
+        decode a bit array that represent a posting list
+        :param bit_array: the bitarray object that represent the posting list
+        :return: a list in the form of [doc_id, score, doc_id, score, ...]
+        """
         list_of_doc_and_diff = PostingListEncoder.decode7bit_list_int(PostingListEncoder.bitarray_to_string(bit_array))
         prev = 0
         for i in range(1,len(list_of_doc_and_diff),2):
@@ -132,10 +185,9 @@ class PostingListEncoder(object):
 
     def add_block_of_PL(self, list_word_PL):
         """
-            Args :
-            list_word_PL is a list of (word, {doc_id: score, ... }) word(string), doc_id (int), score (int)
-
-            Word have to be ordred and block have to be ordred too
+        Encode a set of posting list ordrer by word and each posting list is ordred by score ascending
+        :param list_word_PL: list of (word, {doc_id: score, ...} )
+        :return: Nothing
         """
         # add of block
 
@@ -161,11 +213,9 @@ class PostingListEncoder(object):
 
     def get_posting_list(self, word):
         """
-            Args :
-            word is word which is associat to the posting list that we want
-
-            Return :
-            (word, {doc_id:score})
+        Get the postiong list of a specifique word
+        :param word: the word which is associat to the posting list that we want
+        :return: posting list in the form of (word, {doc_id:score})
         """
         if word in self.dict_word_bgnPL_endPL.keys():  
             n_PL = 0 
@@ -184,14 +234,13 @@ class PostingListEncoder(object):
             for i in range(0, len(list_doc_score)-1, 2):
                 dict_doc_score[list_doc_score[i]] = list_doc_score[i+1]
             return (word, dict_doc_score)
-    
+
+
     def creat_posting_list_obj(self,posting_list):
         """
-        Args:
-           - posting_list : (word, {doc_id: score, ...})
-
-        Return:
-            Posting list obj coresponding
+        Create a posting list object
+        :param posting_list: (word, {doc_id: score, ...})
+        :return: Posting list obj coresponding
         """
         qt = posting_list[0]
         ordered_list = []
@@ -208,6 +257,11 @@ class PostingListEncoder(object):
         return PostingList(qt,ordered_list,access_dict)
 
     def creat_posting_list_obj_list(self,query):
+        """
+        Create and return all the posting list corespnding to a query
+        :param query: string mcontaining the semified word of the query separat by blank space
+        :return: list of PostinList object
+        """
         posting_list_obj_list = []
         word_list = query.split()
         for word in word_list:
@@ -219,6 +273,14 @@ class PostingListEncoder(object):
             
         
 def current_word_PL(current_word, file_reader_last_read_list, doc_dict, nb_doc):
+    """
+
+    :param current_word:
+    :param file_reader_last_read_list:
+    :param doc_dict:
+    :param nb_doc:
+    :return:
+    """
     word_posting_list = {} # { key = doc , value = score }
     for idx, file_reader_last_read in enumerate(file_reader_last_read_list):
         if file_reader_last_read["last_read"]["word"] == current_word:
@@ -236,6 +298,11 @@ def current_word_PL(current_word, file_reader_last_read_list, doc_dict, nb_doc):
 
 
 def createPostingListEncoded(block_size=1000):
+    """
+    Create the posting list encoded and reteur the postingListEncoder object that can access to them
+    :param block_size: number of word referenced n each block
+    :return:  postingListEncoder object that can access to the encoded posting list
+    """
     try :
         ##### peut etre à mettre dans une fonction
         file_reader_last_read_list = initialize_file_readers()
@@ -262,7 +329,7 @@ def createPostingListEncoded(block_size=1000):
             if counter%block_size == 0:
                 myPostingListEncoder.add_block_of_PL(block)
                 block = []
-                print(counter/block_size)
+                # print(counter/block_size)
             counter +=1
         ####
         close_file_readers(file_reader_last_read_list=file_reader_last_read_list)
@@ -274,21 +341,53 @@ def createPostingListEncoded(block_size=1000):
         raise ex
         
 def saveEncoderInPickle(obj, filename):
+    """
+    Save the postingListEncoder into a pickle file
+    :param obj: the postingListEncoder
+    :param filename: the pickle file name
+    :return: Nothing
+    """
     with open(filename, 'wb') as file:
         my_pickler = pickle.Pickler(file)
         my_pickler.dump(obj)
     
 def unPickleEncoder(filename):
+    """
+    Load a postingListEncoder object
+    :param filename: The name of the file which contain the Encoder
+    :return: the encoder object
+    """
     with open(filename, 'rb') as file:
         my_unpickler = pickle.Unpickler(file)
         return my_unpickler.load()
 
+def initialize_encoded_PL_obj():
+    """
+    Create the encoded posting list and file the Encoder object into a pickle
+    :return: Nothing
+    """
+    saveEncoderInPickle(createPostingListEncoded(), ENCODE_PL_PICKLE_FILE)
+    
+def get_encoded_PL_obj():
+    """
+    Load the encoder object from a predefined pickle file name
+    :return: The encoder object
+    """
+    return unPickleEncoder(ENCODE_PL_PICKLE_FILE)
 
-# PLset = createPostingListEncoded()
-# print(PLset.creat_posting_list_obj_list("100th").__len__())
 
-## decroissant fonction du score 
-## regarder avec arnaud pour la fonction
+def manage_request_with_encoded_pl(my_r_string, k=5):
+    """
+    Take a string request and return the top file coresponding to this request by using the fagin algorithm
+    :param my_r_string: the request string
+    :param k: the number of doc id in the top
+    :return: The list of the top doc id coresponding to the request
+    """
+    encoded_pl = get_encoded_PL_obj()
+    stem_r_str = handleFormatText(my_r_string)
+    posting_lists = encoded_pl.creat_posting_list_obj_list(stem_r_str)
+    result = top_k_thresh(posting_lists, k, epsilon=0.0)
+    return result
 
 
 

@@ -192,3 +192,6 @@ def buildIndexFile(vocList, docLenght, writingPath , nbDocument) :
         progress_bar.value += 1
        
     writingInFile(currentPostingList, counter + 1, writingPath, NAME_POSTING_LIST, SEPARATOR)
+    
+
+    
