@@ -1,16 +1,41 @@
-# OT1-INSA
-Create index file.
+<h1>Presentation de la structure du projet</h1>
 
-Pour commencer à travailler sur le projet:
+Le projet se présente sous forme de notebook python, developpé pour un cours de 5IF à l'INSA de Lyon.
 
- * Telecharger le jeux de donnée sur le site du professeur "https://fex.insa-lyon.fr/get?k=NkvZ6PxiPHlq7je4zpL" (a voir comment les inserer sur git) puis les inserer dans le dossier data.
+L'équipe est composée de :
+<ul>
+	<li>Nathan  Arsac</li>
+	<li>Arij Daif</li>
+	<li>Arnaud  Dupeyrat</li>
+	<li>Jacques Folléas</li>
+	<li>Mathis   Hammel</li>
+	<li>Riham Razoki</li>
+</ul>
 
-* Telecharger anacounda (https://www.anaconda.com/what-is-anaconda/) permettant de manipuler les notebooks et les librairies. (A voir si on continue de l'utiliser)
 
-	* Une liste de raccourcis bien utile dans le notebook https://www.webucator.com/blog/wp-content/uploads/2015/07/IPython-Notebook-Shortcuts.pdf 
+<h2> But du projet </h2>
 
-* Vous pouvez ouvir un navigateur pour modifier le notebook via le terminal en se plaçant dans le dossier ```jupyter notebook``` ou via le navigator d'anacounda.
+Le but du projet est de construire un outil de référencement permettant de trouver les articles les plus pertinent en fonction d'une requete de l'utilisateur.
+Le but étant de comprendre les principes du référencement en manipulant en autre le concept de TF-IDF, les différents implementations de l'algorithme de fagins et les postings listes.
+
+<h2> Structure du projet </h2>
+
+Le projet se structure en différents fichier python représentant chacun une étape de la construction de l'outil de referencement regrouper dans le dossier <b> ./src </b>: 
+
+<ul>
+	 <li><b>indexFile.ipynb</b> => notebook permettant d'éxecuter les différents fichier</li>
+	 	
+		<li><b>util_index.py</b> => permettant d'effectuer le preprocessing des données, tokenization, stemming, stop-word removal permettant de construire les posting list plus petite.</li>
+		
+	<li><b>util_posting.py</b> => TODO r</li>
+		
+		<li><b>encoded_posting.py</b> => TODO</li>
+		
+	<li><b>graph.py</b> => contenant le code pour la construction et l'affichage des graphs de performance</li>
+		
+	<li><b>naive.py</b> => contenant l'implementation naive pour calculer les meilleurs k meilleurs articles</li>
 	
-	* Pour éviter les conflits inutile, <strong> toujours push sans les output </strong> MENU, cell => All Output => Clear
-	
-	 
+	<li><b>faginsNaive.py</b> => contenant l'implementation de fagins naive pour calculer les meilleurs k meilleurs articles </li>
+		
+	<li><b>fagins.py</b> => contenant l'implementation de fagins threshold pour calculer les meilleurs k meilleurs articles </li>
+</ul>
