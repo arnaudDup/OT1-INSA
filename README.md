@@ -31,6 +31,7 @@ Le projet se structure en différents fichier python représentant chacun une é
 <li><b>util_posting.py</b> => Le fichier contient les classes et les fonctions permettant de faire le merge base à partir des fichiers constitués de posting lists fragmentées dans un seul fchier text. Les données sont stockées sans soucis d'optimisation en mémoire. Ces algorithmes ont été utilisés dans une première version.</li>
         
 <li><b>encoded_posting.py</b> => Le fichier contient les classes et les fonctions permettant de faire le merge base d’une manière plus optimisée en  terme de mémoire. Les posting lists sont triées  par score de façon à ne stocker que les différences de scores successives et d'encoder ces différences sur un nombre variable d'octets. Les posting lists sont ensuite regroupées par bloc et stockées à l'aide de l'outil de sérialisation Pickle.</li>		
+
 <li><b>graph.py</b> => contenant le code pour la construction et l'affichage des graphs de performance</li>
 		
 <li><b>naive.py</b> => contenant l'implementation naive pour calculer les meilleurs k meilleurs articles</li>
