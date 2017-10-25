@@ -1,50 +1,27 @@
+class Naive:
 
-def check_size_of_lists(vocList):
-    try:
-        if len(vocList) < 2:
-            raise NameError("Number of list < 2")
-    except NameError:
-        print("Number of list < 2:(")
-        raise
+    def sort_lists(self, posting_list):
+        ordered_list = []
+        for posting_list_line in posting_list:
+            ordered_list.append(sorted(posting_list_line, key=lambda tup: tup[1], reverse=True))
+        return ordered_list
 
+    def Naive(self,posting_list, k):
+        S = {}
+        C = []
+        ordered_list = self.sort_lists(posting_list)
+        len_lists = len(ordered_list)
+        for i in range(0, k):
+            for ordered_list_line in ordered_list:
+                doc_id, score = ordered_list_line[i]
+                if doc_id in S:
+                    S[doc_id] += score
+                else:
+                    S[doc_id] = score
 
-def check_lenght_of_lists(vocList):
-    snitch = len(vocList[0])
-    for list_t in vocList:
-        try:
-            if len(list_t) != snitch:
-                raise NameError("The lists are different size")
-        except NameError:
-            print("The lists are different size :(")
+        for doc, score in S.items():
+            C.append((doc, score / len_lists))
 
+        R = sorted(C, key=lambda tup: tup[1], reverse=True)[0:k]
 
-def sort_lists(vocList):
-    vocList_sorted = []
-    for i, list_t in enumerate(vocList):
-        vocList_sorted.append(sorted(list_t, key=lambda tup: tup[1], reverse=True))
-    return vocList_sorted
-
-def Naive(List, k):
-    S = {}
-    C = []
-    check_size_of_lists(List)
-    check_lenght_of_lists(List)
-    vocList = sort_lists(List)
-    len_list = len(vocList)
-    Nbr_list = len(vocList[0])
-    print(str(vocList))
-    for i in range(0, Nbr_list):
-
-        for j in range(0, len_list):
-            doc = vocList[j][i]
-            if doc[0] in S:
-                S[doc[0]] += doc[1]
-            else:
-                S[doc[0]] = doc[1]
-
-    for item, mean in S.items():
-        C.append((item, mean / Nbr_list))
-
-    R = sorted(C, key=lambda tup: tup[1], reverse=True)[0:k]
-
-    return R
+        return R
